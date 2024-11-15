@@ -41,10 +41,13 @@
 name: Terraform CI/CD Pipeline
 
 on:
-  workflow_dispatch:  # Allow manual triggering of the pipeline
+  push:
+    branches:
+      - main  # Trigger the pipeline on push to the main branch for Apply job
+  workflow_dispatch:  # Allow manual triggering of the pipeline for both Apply and Destroy jobs
 
 jobs:
-  terraform:
+  terraform_apply:
     runs-on: ubuntu-latest
     env:
       TFE_TOKEN: ${{ secrets.TFE_TOKEN }}  # Ensure the API token is available to the entire job
@@ -71,8 +74,8 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
-        
-  destroy:
+
+  terraform_destroy:
     runs-on: ubuntu-latest
     env:
       TFE_TOKEN: ${{ secrets.TFE_TOKEN }}  # Ensure the API token is available to the entire job
