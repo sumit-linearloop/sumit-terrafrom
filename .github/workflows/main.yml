@@ -16,12 +16,9 @@ jobs:
         with:
           terraform_version: 1.9.8  # Specify the Terraform version you need
 
-      - name: Authenticate with Terraform Cloud
-        env:
-          TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
-        run: terraform login
-
       - name: Initialize Terraform
+        env:
+          TFE_TOKEN: ${{ secrets.TFE_TOKEN }}  # Terraform Cloud API token
         run: terraform init
 
       - name: Terraform Plan
@@ -29,6 +26,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ap-south-1
+          TFE_TOKEN: ${{ secrets.TFE_TOKEN }}  # Terraform Cloud API token
         run: terraform plan
 
       - name: Terraform Apply
@@ -37,4 +35,5 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ap-south-1
+          TFE_TOKEN: ${{ secrets.TFE_TOKEN }}  # Terraform Cloud API token
         run: terraform apply -auto-approve
