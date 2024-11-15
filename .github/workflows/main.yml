@@ -9,7 +9,7 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
     env:
-      TFE_TOKEN: ${{ secrets.TFE_TOKEN }}  # Set the Terraform Cloud API token for the entire job
+      TFE_TOKEN: ${{ secrets.TFE_TOKEN }}  # Ensure the API token is available to the entire job
 
     steps:
       - name: Checkout code
@@ -20,6 +20,11 @@ jobs:
         with:
           terraform_version: 1.9.8
 
+      - name: Configure Terraform Cloud credentials
+        run: |
+          mkdir -p ~/.terraform.d
+          echo "{\"credentials\": {\"app.terraform.io\": {\"token\": \"${{ secrets.TFE_TOKEN }}\"}}}" > ~/.terraform.d/credentials.tfrc.json
+          
       - name: Terraform Init
         run: terraform init
 
