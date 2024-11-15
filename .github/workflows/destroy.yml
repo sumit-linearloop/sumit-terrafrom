@@ -1,4 +1,4 @@
-name: Terraform CI/CD Pipeline
+name: Terraform CI/CD Pipeline-destroy
 
 on:
   workflow_dispatch:  # Allow manual triggering of the pipeline
