@@ -1,46 +1,57 @@
-# Security Group
+terraform {
+  backend "remote" {
+    organization = "CI_CD"
+    workspaces {
+      name = "Terrafrom-CI_CD"
+    }
+  }
+}
+
+provider "aws" {
+  region = "ap-south-1"
+}
+
+# Create an EC2 instance
+resource "aws_instance" "worker" {
+  ami           = var.ami            # Reference the AMI variable
+  instance_type = var.instance_type  # Reference the instance type variable
+  key_name      = var.key_name       # Reference the SSH key pair variable
+ 
+  # Add security group
+  security_groups = [aws_security_group.sumit-iac.name]
+ 
+  tags = {
+    Name = "sumit-cloud"
+  }
+}
+ 
+# Create a Security Group (SG) for the EC2 instance
 resource "aws_security_group" "sumit-iac" {
   name        = "sumit-iac"
   description = "sumit-iac"
-
-  dynamic "ingress" {
-    for_each = [22, 80, 443, 6379]
-    iterator = port
-    content {
-      description = "TLS from VPC"
-      from_port   = port.value
-      to_port     = port.value
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
+ 
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Allow SSH from anywhere
   }
-
+ 
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Allow HTTP from anywhere
+  }
+ 
   egress {
     from_port   = 0
     to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "Sumit-Terraform"
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Allow all outbound traffic
   }
 }
-
-# Key Pair
-resource "aws_key_pair" "id_rsa" {
-  key_name   = "id_rsa"
-  public_key = file("${path.module}/id_rsa.pub")
-}
-
-# EC2 Instance
-resource "aws_instance" "worker" {
-  ami                    = "ami-0dee22c13ea7a9a67"
-  instance_type          = "t2.nano"
-  key_name               = aws_key_pair.id_rsa.key_name
-  vpc_security_group_ids = ["${aws_security_group.sumit-iac.id}"]
-
-  tags = {
-    Name = "BetterBugs-kub-worker"
-  }
+ 
+output "instance_public_ip" {
+  value = aws_instance.worker.public_ip
 }
