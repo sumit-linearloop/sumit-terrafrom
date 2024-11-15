@@ -65,38 +65,9 @@ jobs:
         run: |
           mkdir -p ~/.terraform.d
           echo "{\"credentials\": {\"app.terraform.io\": {\"token\": \"${{ secrets.TFE_TOKEN }}\"}}}" > ~/.terraform.d/credentials.tfrc.json
-          
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Plan
-        run: terraform plan
+        
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
-
-  terraform_destroy:
-    runs-on: ubuntu-latest
-    env:
-      TFE_TOKEN: ${{ secrets.TFE_TOKEN }}  # Ensure the API token is available to the entire job
-    if: github.event_name == 'workflow_dispatch'  # Run this job only if manually triggered
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.9.8
-
-      - name: Configure Terraform Cloud credentials
-        run: |
-          mkdir -p ~/.terraform.d
-          echo "{\"credentials\": {\"app.terraform.io\": {\"token\": \"${{ secrets.TFE_TOKEN }}\"}}}" > ~/.terraform.d/credentials.tfrc.json
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Destroy
         run: terraform destroy -auto-approve
+
+  
