@@ -65,7 +65,9 @@ jobs:
         run: |
           mkdir -p ~/.terraform.d
           echo "{\"credentials\": {\"app.terraform.io\": {\"token\": \"${{ secrets.TFE_TOKEN }}\"}}}" > ~/.terraform.d/credentials.tfrc.json
-        
+          
+      - name: Terraform Init
+        run: terraform init
 
       - name: Terraform Apply
         run: terraform destroy -auto-approve
