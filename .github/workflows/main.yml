@@ -15,7 +15,10 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: 1.5.0
+          terraform_version: 1.9.8
+
+      - name: Configure Terraform Cloud API Token
+        run: echo "TFC_CLOUD_TOKEN=${{ secrets.TFC_CLOUD_TOKEN }}" >> $GITHUB_ENV  # Set the API token as an environment variable
 
       - name: Terraform Init
         run: terraform init
@@ -26,4 +29,4 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve
         env:
-          TFC_CLOUD_TOKEN: ${{ secrets.TFC_CLOUD_TOKEN }}  # Store your Terraform Cloud API token as a secret
+          TFC_CLOUD_TOKEN: ${{ secrets.TFC_CLOUD_TOKEN }}  # Use the stored Terraform Cloud API token during apply
