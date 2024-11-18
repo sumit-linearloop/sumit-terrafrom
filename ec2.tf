@@ -19,12 +19,15 @@ resource "aws_instance" "worker" {
  
   # Add security group
   security_groups = [aws_security_group.sumit-iac.name]
- 
+
+  # Use cloud-init or a shell script for initial setup
+  user_data = file("${path.module}/sumit.sh")  # Ensure this script is in the correct location
+
   tags = {
     Name = "sumit-cloud"
   }
 }
- 
+
 # Create a Security Group (SG) for the EC2 instance
 resource "aws_security_group" "sumit-iac" {
   name        = "sumit-iac"
@@ -47,14 +50,16 @@ resource "aws_security_group" "sumit-iac" {
   egress {
     from_port   = 0
     to_port     = 0
-    protocol    = "tcp"
+    protocol    = "-1"           # Use "-1" to allow all protocols
     cidr_blocks = ["0.0.0.0/0"]  # Allow all outbound traffic
   }
 }
- 
+
+# Output the public IP of the EC2 instance
 output "instance_public_ip" {
   value = aws_instance.worker.public_ip
 }
+
 
 
 
