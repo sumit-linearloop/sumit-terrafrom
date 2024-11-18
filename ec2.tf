@@ -123,14 +123,13 @@ resource "aws_instance" "worker" {
     private_key = var.ssh_private_key # Use variable directly
   }
 
-  # Execute the uploaded script
-  provisioner "remote-exec" {
-    inline = [
-      "AWS_ACCESS_KEY_ID=var.aws_access_key_id'",
-      "AWS_SECRET_ACCESS_KEY='var.aws_secret_secret_key'",
-      "chmod +x /home/ubuntu/sumit.sh",
-      "sudo /home/ubuntu/sumit.sh"
-    ]
+provisioner "remote-exec" {
+  inline = [
+    "export AWS_ACCESS_KEY_ID=${var.aws_access_key_id}",
+    "export AWS_SECRET_ACCESS_KEY=${var.aws_secret_access_key}",
+    "chmod +x /home/ubuntu/sumit.sh",
+    "sudo /home/ubuntu/sumit.sh"
+  ]
 
     connection {
       type        = "ssh"
