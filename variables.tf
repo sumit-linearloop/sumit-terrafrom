@@ -19,13 +19,13 @@ variable "ssh_private_key" {
 }
 
 variable "aws_access_key_id" {
-  description = "AWS access key ID"
+  description = "AWS Access Key ID"
   type        = string
   sensitive   = true
 }
 
 variable "aws_secret_access_key" {
-  description = "AWS secret access key"
+  description = "AWS Secret Access Key"
   type        = string
   sensitive   = true
 }
