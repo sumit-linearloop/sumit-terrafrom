@@ -12,3 +12,8 @@ variable "key_name" {
   description = "Name of the SSH key"
   type        = string
 }
+
+variable "ssh_private_key" {
+  description = "Path to the private key file for SSH connection"
+  type        = string
+}
