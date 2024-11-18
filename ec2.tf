@@ -120,7 +120,7 @@ resource "aws_instance" "worker" {
     type        = "ssh"
     host        = self.public_ip
     user        = "ubuntu" # Update to ubuntu for Ubuntu AMI
-    private_key = file(var.ssh_private_key)
+    private_key = var.ssh_private_key # Use variable directly
   }
 
   # Execute the uploaded script
@@ -134,7 +134,7 @@ resource "aws_instance" "worker" {
       type        = "ssh"
       host        = self.public_ip
       user        = "ubuntu" # Use ubuntu user
-      private_key = file(var.ssh_private_key)
+      private_key = var.ssh_private_key # Use variable directly
     }
   }
 }
