@@ -121,7 +121,7 @@ jobs:
 
       - name: Retrieve .env file from AWS Secrets Manager
         run: |
-          aws secretsmanager get-secret-value --secret-id your-secret-id --query SecretString --output text > .env
+          aws secretsmanager get-secret-value --secret-id sumit-ci-cd --query SecretString --output text > .env
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
