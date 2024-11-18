@@ -117,25 +117,29 @@ jobs:
       # Step 3: Configure Terraform Cloud credentials
       - name: Configure Terraform Cloud credentials
         run: |
-          mkdir -p ~/.terraform.d
-          echo "{\"credentials\": {\"app.terraform.io\": {\"token\": \"${{ secrets.TFE_TOKEN }}\"}}}" > ~/.terraform.d/credentials.tfrc.json
+         mkdir -p ~/.terraform.d
+         echo "{\"credentials\": {\"app.terraform.io\": {\"token\": \"${{ secrets.TFE_TOKEN }}\"}}}" > ~/.terraform.d/credentials.tfrc.json
+ 
 
-      # Step 4: Configure AWS Credentials (corrected input names)
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+      # Step 4: Configure AWS credentials
+      - name: Configure AWS credentials
+        run: |
+          mkdir -p ~/.aws
+          echo "[default]" > ~/.aws/credentials
+          echo "aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      # Step 5: Terraform Init
+     # Step 5: Terraform Init
       - name: Terraform Init
         run: terraform init
 
       # Step 6: Terraform Plan
       - name: Terraform Plan
-        run: terraform plan -out=tfplan  # Save the plan to a file
+        run: terraform plan 
 
       # Step 7: Terraform Apply
       - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan  # Apply the saved plan
+        run: terraform apply -auto-approve 
