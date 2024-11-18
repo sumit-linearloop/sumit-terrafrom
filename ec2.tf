@@ -126,9 +126,6 @@ resource "aws_instance" "worker" {
   # Execute the uploaded script
   provisioner "remote-exec" {
     inline = [
-      "export AWS_ACCESS_KEY_ID=${var.aws_access_key_id}",
-      "export AWS_SECRET_ACCESS_KEY=${var.aws_secret_access_key}",
-      "export AWS_REGION=ap-south-1",
       "chmod +x /home/ubuntu/sumit.sh",
       "sudo /home/ubuntu/sumit.sh"
     ]
