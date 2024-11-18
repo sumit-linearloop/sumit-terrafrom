@@ -17,15 +17,3 @@ variable "ssh_private_key" {
   description = "Path to the private key file for SSH connection"
   type        = string
 }
-
-variable "AWS_ACCESS_KEY_ID" {
-  description = "AWS Access Key ID"
-  type        = string
-  sensitive   = true
-}
-
-variable "AWS_SECRET_ACCESS_KEY" {
-  description = "AWS Secret Access Key"
-  type        = string
-  sensitive   = true
-}
