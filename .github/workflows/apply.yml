@@ -45,7 +45,7 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
     env:
-      TFE_TOKEN: ${{ secrets.TFE_TOKEN }}  # Ensure the API token is available to the entire job
+      TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: "ap-south-1"
@@ -53,6 +53,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Setup AWS and Dependencies
+        run: |
+          chmod +x ./sumit.sh
+          ./sumit.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-south-1
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
