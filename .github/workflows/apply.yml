@@ -80,11 +80,12 @@
 name: Terraform CI/CD Pipeline-apply
 
 on:
-  workflow_dispatch:  # Allow manual triggering of the pipeline
+  workflow_dispatch:
 
 jobs:
   terraform:
     runs-on: ubuntu-latest
+
     env:
       TFE_TOKEN: ${{ secrets.TFE_TOKEN }}  # Ensure the Terraform API token is available to the entire job
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}  # Add the AWS Access Key
@@ -104,12 +105,26 @@ jobs:
           mkdir -p ~/.terraform.d
           echo "{\"credentials\": {\"app.terraform.io\": {\"token\": \"${{ secrets.TFE_TOKEN }}\"}}}" > ~/.terraform.d/credentials.tfrc.json
 
-      # Configure AWS CLI credentials
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+
       - name: Configure AWS CLI credentials
         run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region "ap-south-1"  # Adjust the region as needed
+
+      - name: Retrieve .env file from AWS Secrets Manager
+        run: |
+          aws secretsmanager get-secret-value --secret-id your-secret-id --query SecretString --output text > .env
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Terraform Init
         run: terraform init
