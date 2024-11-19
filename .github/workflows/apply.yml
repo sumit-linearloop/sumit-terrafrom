@@ -84,6 +84,86 @@
 
 
 
+# name: Terraform CI/CD Pipeline-apply
+
+# on:
+#   workflow_dispatch:  
+#     inputs:
+#       username:
+#         description: 'SSH Username'
+#         required: true
+#         default: 'ubuntu'
+
+# jobs:
+#   terraform:
+#     runs-on: ubuntu-latest
+#     env:
+#       TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+
+#       - name: Set up Terraform
+#         uses: hashicorp/setup-terraform@v2
+#         with:
+#           terraform_version: 1.9.8
+
+#       - name: Configure Terraform Cloud credentials
+#         run: |
+#           mkdir -p ~/.terraform.d
+#           echo "{\"credentials\": {\"app.terraform.io\": {\"token\": \"${{ secrets.TFE_TOKEN }}\"}}}" > ~/.terraform.d/credentials.tfrc.json
+
+#       - name: Terraform Init
+#         run: terraform init
+
+#       - name: Terraform Plan
+#         run: terraform plan
+
+#       - name: Terraform Apply
+#         run: terraform apply -auto-approve
+
+#       - name: Get EC2 Public IP
+#         id: ec2_ip
+#         run: |
+#           # Capture the public IP from Terraform output
+#           PUBLIC_IP=$(terraform output -raw instance_public_ip)
+
+#           # Debug: Display the fetched IP for confirmation
+#           echo "EC2 Public IP: $PUBLIC_IP"
+
+#           # Store EC2 Public IP as a GitHub Actions environment variable
+#           echo "EC2_PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
+
+#       - name: SSH Login and Run Commands
+#         env:
+#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+#           AWS_DEFAULT_REGION: ap-south-1
+#           EC2_PUBLIC_IP: ${{ env.EC2_PUBLIC_IP }}  # Access the output from the environment variable
+#         run: |
+#           # Save the private key
+#           echo "${{ secrets.SSH_PRIVATE_KEY }}" > sumit.pem
+#           chmod 600 sumit.pem
+
+#           # Debugging: Check the public IP
+#           echo "Connecting to EC2 instance at $EC2_PUBLIC_IP"
+
+#           # SSH into EC2 instance
+#           ssh -i sumit.pem -o StrictHostKeyChecking=no ${{ github.event.inputs.username }}@$EC2_PUBLIC_IP << 'EOF'
+#             set -e
+#             echo "Connected to remote server"
+#             sudo apt-get update -y
+#             sudo apt-get install -y awscli
+#             aws --version
+#             aws s3 ls
+#           EOF
+
+#           # Clean up the private key after use
+#           rm -f sumit.pem
+
+
+
 name: Terraform CI/CD Pipeline-apply
 
 on:
@@ -99,6 +179,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}  # Use your PAT here
 
     steps:
       - name: Checkout code
@@ -121,44 +202,21 @@ jobs:
         run: terraform plan
 
       - name: Terraform Apply
+        id: apply
         run: terraform apply -auto-approve
 
       - name: Get EC2 Public IP
-        id: ec2_ip
+        id: get-ip
         run: |
-          # Capture the public IP from Terraform output
-          PUBLIC_IP=$(terraform output -raw instance_public_ip)
+          # Capture the public IP output from Terraform
+          instance_ip=$(terraform output -raw instance_public_ip)
+          echo "EC2 Public IP: $instance_ip"
+          echo "instance_ip=$instance_ip" >> $GITHUB_ENV
 
-          # Debug: Display the fetched IP for confirmation
-          echo "EC2 Public IP: $PUBLIC_IP"
-
-          # Store EC2 Public IP as a GitHub Actions environment variable
-          echo "EC2_PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
-
-      - name: SSH Login and Run Commands
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-          AWS_DEFAULT_REGION: ap-south-1
-          EC2_PUBLIC_IP: ${{ env.EC2_PUBLIC_IP }}  # Access the output from the environment variable
+      - name: Update GitHub Secrets
         run: |
-          # Save the private key
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > sumit.pem
-          chmod 600 sumit.pem
-
-          # Debugging: Check the public IP
-          echo "Connecting to EC2 instance at $EC2_PUBLIC_IP"
-
-          # SSH into EC2 instance
-          ssh -i sumit.pem -o StrictHostKeyChecking=no ${{ github.event.inputs.username }}@$EC2_PUBLIC_IP << 'EOF'
-            set -e
-            echo "Connected to remote server"
-            sudo apt-get update -y
-            sudo apt-get install -y awscli
-            aws --version
-            aws s3 ls
-          EOF
-
-          # Clean up the private key after use
-          rm -f sumit.pem
-
+          curl -X PATCH \
+            -H "Authorization: token ${{ secrets.MY_GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -d "{\"encrypted_value\": \"$instance_ip\"}" \
+            https://api.github.com/repos/${{ github.repository }}/actions/secrets/INSTANCE_PUBLIC_IP
