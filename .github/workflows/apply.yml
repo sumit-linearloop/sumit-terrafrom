@@ -93,9 +93,6 @@ on:
         description: 'SSH Username'
         required: true
         default: 'ubuntu'
-      server_ip:
-        description: 'Server IP Address'
-        required: true
 
 jobs:
   terraform:
@@ -132,7 +129,7 @@ jobs:
           # Retrieve the public IP of the EC2 instance created by Terraform
           PUBLIC_IP=$(terraform output -raw instance_public_ip)
           echo "EC2 Public IP: $PUBLIC_IP"
-          echo "EC2 Public IP is $PUBLIC_IP" >> $GITHUB_ENV  # Store output in environment variable
+          echo "EC2_PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV  # Store output in environment variable
 
       - name: SSH Login and Run Commands
         env:
@@ -155,5 +152,5 @@ jobs:
             aws s3 ls
           EOF
 
-          # Clean up
+          # Clean up the private key
           rm -f sumit.pem
