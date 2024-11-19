@@ -126,24 +126,34 @@ jobs:
       - name: Get EC2 Public IP
         id: ec2_ip
         run: |
-         PUBLIC_IP=$(terraform output -raw instance_public_ip)
-         echo "EC2 Public IP: $PUBLIC_IP"
-         echo "EC2_PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV  # Store output in environment variable
+          PUBLIC_IP=$(terraform output -raw instance_public_ip)
+          echo "EC2 Public IP: $PUBLIC_IP"
+          echo "EC2_PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV  # Store output in environment variable
 
+          # Debugging output to check if the value is correct
+          echo "Terraform Output (raw):"
+          terraform output instance_public_ip
+
+      - name: Check Terraform Output and Debug State
+        run: |
+          terraform output instance_public_ip
+          terraform state show aws_instance.worker
 
       - name: SSH Login and Run Commands
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
           AWS_DEFAULT_REGION: ap-south-1
-          EC2_PUBLIC_IP: ${{ env.EC2_PUBLIC_IP }}  # Access the output in subsequent steps
+          EC2_PUBLIC_IP: ${{ env.EC2_PUBLIC_IP }}  # Use the environment variable
         run: |
-          # Save the private key
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > sumit.pem
           chmod 600 sumit.pem
 
-          # SSH into the remote server using the EC2 public IP from the environment variable
-          ssh -i sumit.pem -o StrictHostKeyChecking=no ${{ github.event.inputs.username }}@${{ env.EC2_PUBLIC_IP }} << 'EOF'
+          # Debug: Ensure EC2_PUBLIC_IP is correctly retrieved
+          echo "EC2_PUBLIC_IP: $EC2_PUBLIC_IP"
+
+          # SSH into EC2 instance
+          ssh -i sumit.pem -o StrictHostKeyChecking=no ${{ github.event.inputs.username }}@$EC2_PUBLIC_IP << 'EOF'
             set -e
             echo "Connected to remote server"
             sudo apt-get update -y
@@ -152,5 +162,5 @@ jobs:
             aws s3 ls
           EOF
 
-          # Clean up the private key
+          # Clean up
           rm -f sumit.pem

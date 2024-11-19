@@ -16,8 +16,9 @@ resource "aws_instance" "worker" {
   ami           = var.ami            # Reference the AMI variable
   instance_type = var.instance_type  # Reference the instance type variable
   key_name      = var.key_name       # Reference the SSH key pair variable
- 
-  # Add security group
+
+  associate_public_ip_address = true  # Ensure public IP is assigned
+
   security_groups = [aws_security_group.sumit-iac.name]
 
   tags = {
@@ -56,6 +57,7 @@ resource "aws_security_group" "sumit-iac" {
 output "instance_public_ip" {
   value = aws_instance.worker.public_ip
 }
+
 
 
 
