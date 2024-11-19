@@ -179,31 +179,29 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
-      GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}  # Use your PAT here
+      GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3  # Updated to v3
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.9.8
-
-      - name: Configure Terraform Cloud credentials
-        run: |
-          mkdir -p ~/.terraform.d
-          echo "{\"credentials\": {\"app.terraform.io\": {\"token\": \"${{ secrets.TFE_TOKEN }}\"}}}" > ~/.terraform.d/credentials.tfrc.json
+          cli_config_credentials_token: ${{ secrets.TFE_TOKEN }}
 
       - name: Terraform Init
+        id: init
         run: terraform init
 
       - name: Terraform Plan
-        run: terraform plan
+        id: plan
+        run: terraform plan -out=tfplan
 
       - name: Terraform Apply
         id: apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve tfplan
 
       - name: Get EC2 Public IP
         id: get-ip
@@ -217,16 +215,20 @@ jobs:
             exit 1
           fi
 
-          echo "instance_ip=$instance_ip" >> $GITHUB_ENV
+          echo "instance_ip=$instance_ip" >> "$GITHUB_OUTPUT"
+
+      - name: Install GitHub CLI
+        run: |
+          type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+          && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+          && sudo apt update \
+          && sudo apt install gh -y
 
       - name: Save Public IP as GitHub Secret
+        env:
+          GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+          INSTANCE_IP: ${{ steps.get-ip.outputs.instance_ip }}
         run: |
-          secret_name="EC2_PUBLIC_IP"
-          instance_ip="${{ env.instance_ip }}"
-
-          # Encrypt the instance IP value using GitHub API
-          curl -X PUT \
-            -H "Authorization: token ${{ secrets.MY_GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            -d '{"encrypted_value":"'"$instance_ip"'"}' \
-            https://api.github.com/repos/${{ github.repository }}/actions/secrets/$secret_name
+          gh secret set EC2_PUBLIC_IP --body="$INSTANCE_IP"
