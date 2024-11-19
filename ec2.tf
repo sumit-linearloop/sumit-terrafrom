@@ -61,8 +61,6 @@ output "instance_public_ip" {
 
 
 
-
-
 # terraform {
 #   backend "remote" {
 #     organization = "CI_CD"

@@ -219,11 +219,14 @@ jobs:
 
           echo "instance_ip=$instance_ip" >> $GITHUB_ENV
 
-      - name: Update GitHub Secrets
+      - name: Save Public IP as GitHub Secret
         run: |
-          # Use the Personal Access Token to update the repository secret
-          curl -X PATCH \
+          secret_name="EC2_PUBLIC_IP"
+          instance_ip="${{ env.instance_ip }}"
+
+          # Encrypt the instance IP value using GitHub API
+          curl -X PUT \
             -H "Authorization: token ${{ secrets.MY_GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            -d "{\"encrypted_value\": \"$instance_ip\"}" \
-            https://api.github.com/repos/${{ github.repository }}/actions/secrets/INSTANCE_PUBLIC_IP
+            -d '{"encrypted_value":"'"$instance_ip"'"}' \
+            https://api.github.com/repos/${{ github.repository }}/actions/secrets/$INSTANCE_PUBLIC_IP
