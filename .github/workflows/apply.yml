@@ -88,6 +88,14 @@ name: Terraform CI/CD Pipeline-apply
 
 on:
   workflow_dispatch:  
+    inputs:
+      username:
+        description: 'SSH Username'
+        required: true
+        default: 'ubuntu'
+      server_ip:
+        description: 'Server IP Address'
+        required: true
 
 jobs:
   terraform:
@@ -118,21 +126,34 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve
 
+      - name: Get EC2 Public IP
+        id: ec2_ip
+        run: |
+          # Retrieve the public IP of the EC2 instance created by Terraform
+          PUBLIC_IP=$(terraform output -raw instance_public_ip)
+          echo "EC2 Public IP: $PUBLIC_IP"
+          echo "EC2 Public IP is $PUBLIC_IP" >> $GITHUB_ENV  # Store output in environment variable
+
       - name: SSH Login and Run Commands
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-          AWS_DEFAULT_REGION: ap-south-1  
+          AWS_DEFAULT_REGION: ap-south-1
+          EC2_PUBLIC_IP: ${{ env.EC2_PUBLIC_IP }}  # Access the output in subsequent steps
         run: |
-          # Save the private key from GitHub secret
+          # Save the private key
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > sumit.pem
           chmod 600 sumit.pem
 
-          # SSH into the remote server and execute commands
-          ssh -i sumit.pem username@server_ip << 'EOF'
+          # SSH into the remote server using the EC2 public IP from the environment variable
+          ssh -i sumit.pem -o StrictHostKeyChecking=no ${{ github.event.inputs.username }}@${{ env.EC2_PUBLIC_IP }} << 'EOF'
+            set -e
             echo "Connected to remote server"
-            sudo apt-get update
+            sudo apt-get update -y
             sudo apt-get install -y awscli
             aws --version
             aws s3 ls
           EOF
+
+          # Clean up
+          rm -f sumit.pem
