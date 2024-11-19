@@ -211,10 +211,19 @@ jobs:
           # Capture the public IP output from Terraform
           instance_ip=$(terraform output -raw instance_public_ip)
           echo "EC2 Public IP: $instance_ip"
+
+          # Check if the output is empty or invalid
+          if [ -z "$instance_ip" ]; then
+            echo "Error: EC2 public IP is empty or invalid."
+            exit 1
+          fi
+
+          # Set the output as an environment variable for later steps
           echo "instance_ip=$instance_ip" >> $GITHUB_ENV
 
       - name: Update GitHub Secrets
         run: |
+          # Use the Personal Access Token to update the repository secret
           curl -X PATCH \
             -H "Authorization: token ${{ secrets.MY_GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
