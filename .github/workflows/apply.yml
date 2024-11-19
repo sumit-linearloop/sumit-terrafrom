@@ -88,6 +88,14 @@ name: Terraform CI/CD Pipeline-apply
 
 on:
   workflow_dispatch:  
+    inputs:
+      username:
+        description: 'SSH Username'
+        required: true
+        default: 'ubuntu'
+      server_ip:
+        description: 'Server IP Address'
+        required: true
 
 jobs:
   terraform:
@@ -108,7 +116,7 @@ jobs:
         run: |
           mkdir -p ~/.terraform.d
           echo "{\"credentials\": {\"app.terraform.io\": {\"token\": \"${{ secrets.TFE_TOKEN }}\"}}}" > ~/.terraform.d/credentials.tfrc.json
-          
+
       - name: Terraform Init
         run: terraform init
 
@@ -118,16 +126,25 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve
 
-      - name: Install AWS CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y awscli
-          aws --version  
-
-      - name: Use AWS CLI
+      - name: SSH Login and Run Commands
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-          AWS_DEFAULT_REGION: ap-south-1  
+          AWS_DEFAULT_REGION: ap-south-1
         run: |
-          aws s3 ls
+          # Save the private key
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > sumit.pem
+          chmod 600 sumit.pem
+
+          # SSH into the remote server and execute commands
+          ssh -i sumit.pem -o StrictHostKeyChecking=no ${{ github.event.inputs.username }}@${{ github.event.inputs.server_ip }} << 'EOF'
+            set -e
+            echo "Connected to remote server"
+            sudo apt-get update -y
+            sudo apt-get install -y awscli
+            aws --version
+            aws s3 ls
+          EOF
+
+          # Clean up
+          rm -f sumit.pem
