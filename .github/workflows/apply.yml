@@ -126,33 +126,31 @@ jobs:
       - name: Get EC2 Public IP
         id: ec2_ip
         run: |
-          # Fetch the public IP from Terraform output
+          # Capture the public IP from Terraform output
           PUBLIC_IP=$(terraform output -raw instance_public_ip)
+
+          # Debug: Display the fetched IP for confirmation
           echo "EC2 Public IP: $PUBLIC_IP"
 
-          # Store output in environment variable for later use
+          # Store EC2 Public IP as a GitHub Actions environment variable
           echo "EC2_PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
-
-          # Debugging: Ensure that the value is correct
-          echo "Terraform Output (raw):"
-          echo "$PUBLIC_IP"  # Only output the actual IP address
 
       - name: SSH Login and Run Commands
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
           AWS_DEFAULT_REGION: ap-south-1
-          EC2_PUBLIC_IP: ${{ env.EC2_PUBLIC_IP }}  # Use the environment variable
+          EC2_PUBLIC_IP: ${{ env.EC2_PUBLIC_IP }}  # Access the output from the environment variable
         run: |
           # Save the private key
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > sumit.pem
           chmod 600 sumit.pem
 
-          # Debug: Ensure EC2_PUBLIC_IP is correctly retrieved
-          echo "EC2_PUBLIC_IP: $EC2_PUBLIC_IP"
+          # Debugging: Check the public IP
+          echo "Connecting to EC2 instance at $EC2_PUBLIC_IP"
 
           # SSH into EC2 instance
-          ssh -i sumit.pem  ${{ github.event.inputs.username }}@$EC2_PUBLIC_IP << 'EOF'
+          ssh -i sumit.pem -o StrictHostKeyChecking=no ${{ github.event.inputs.username }}@$EC2_PUBLIC_IP << 'EOF'
             set -e
             echo "Connected to remote server"
             sudo apt-get update -y
@@ -161,5 +159,6 @@ jobs:
             aws s3 ls
           EOF
 
-          # Clean up
+          # Clean up the private key after use
           rm -f sumit.pem
+
