@@ -229,4 +229,4 @@ jobs:
             -H "Authorization: token ${{ secrets.MY_GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             -d '{"encrypted_value":"'"$instance_ip"'"}' \
-            https://api.github.com/repos/${{ github.repository }}/actions/secrets/$INSTANCE_PUBLIC_IP
+            https://api.github.com/repos/${{ github.repository }}/actions/secrets/$secret_name
