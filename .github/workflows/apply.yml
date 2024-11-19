@@ -1,39 +1,36 @@
-# name: Terraform CI/CD Pipeline-apply
+name: Terraform CI/CD Pipeline-apply
 
-# on:
-#   workflow_dispatch:  # Allow manual triggering of the pipeline
+on:
+  workflow_dispatch:  # Allow manual triggering of the pipeline
 
-# jobs:
-#   terraform:
-#     runs-on: ubuntu-latest
-#     env:
-#       TFE_TOKEN: ${{ secrets.TFE_TOKEN }}  # Ensure the API token is available to the entire job
-#       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#       AWS_REGION: "ap-south-1"
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    env:
+      TFE_TOKEN: ${{ secrets.TFE_TOKEN }}  # Ensure the API token is available to the entire job
 
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-#       - name: Set up Terraform
-#         uses: hashicorp/setup-terraform@v2
-#         with:
-#           terraform_version: 1.9.8
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.9.8
 
-#       - name: Configure Terraform Cloud credentials
-#         run: |
-#           mkdir -p ~/.terraform.d
-#           echo "{\"credentials\": {\"app.terraform.io\": {\"token\": \"${{ secrets.TFE_TOKEN }}\"}}}" > ~/.terraform.d/credentials.tfrc.json
+      - name: Configure Terraform Cloud credentials
+        run: |
+          mkdir -p ~/.terraform.d
+          echo "{\"credentials\": {\"app.terraform.io\": {\"token\": \"${{ secrets.TFE_TOKEN }}\"}}}" > ~/.terraform.d/credentials.tfrc.json
           
-#       - name: Terraform Init
-#         run: terraform init
+      - name: Terraform Init
+        run: terraform init
 
-#       - name: Terraform Plan
-#         run: terraform plan
+      - name: Terraform Plan
+        run: terraform plan
 
-#       - name: Terraform Apply
-#         run: terraform apply -auto-approve
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
 
 
 
@@ -89,57 +86,57 @@
 
 
 
-name: Terraform CI/CD Pipeline-apply
+# name: Terraform CI/CD Pipeline-apply
 
-on:
-  workflow_dispatch:  # Allow manual triggering of the pipeline
+# on:
+#   workflow_dispatch:  # Allow manual triggering of the pipeline
 
-jobs:
-  terraform:
-    runs-on: ubuntu-latest
-    env:
-      TFE_TOKEN: ${{ secrets.TFE_TOKEN }}  # Ensure the API token is available to the entire job
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: "ap-south-1"
+# jobs:
+#   terraform:
+#     runs-on: ubuntu-latest
+#     env:
+#       TFE_TOKEN: ${{ secrets.TFE_TOKEN }}  # Ensure the API token is available to the entire job
+#       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#       AWS_REGION: "ap-south-1"
 
-    steps:
-      # Step 1: Checkout code
-      - name: Checkout code
-        uses: actions/checkout@v3  # Updated to v3
+#     steps:
+#       # Step 1: Checkout code
+#       - name: Checkout code
+#         uses: actions/checkout@v3  # Updated to v3
 
-      # Step 2: Set up Terraform
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.9.8  # Use a consistent version
+#       # Step 2: Set up Terraform
+#       - name: Set up Terraform
+#         uses: hashicorp/setup-terraform@v2
+#         with:
+#           terraform_version: 1.9.8  # Use a consistent version
 
-      # Step 3: Configure Terraform Cloud credentials
-      - name: Configure Terraform Cloud credentials
-        run: |
-         mkdir -p ~/.terraform.d
-         echo "{\"credentials\": {\"app.terraform.io\": {\"token\": \"${{ secrets.TFE_TOKEN }}\"}}}" > ~/.terraform.d/credentials.tfrc.json
+#       # Step 3: Configure Terraform Cloud credentials
+#       - name: Configure Terraform Cloud credentials
+#         run: |
+#          mkdir -p ~/.terraform.d
+#          echo "{\"credentials\": {\"app.terraform.io\": {\"token\": \"${{ secrets.TFE_TOKEN }}\"}}}" > ~/.terraform.d/credentials.tfrc.json
  
 
-      # Step 4: Configure AWS credentials
-      - name: Configure AWS credentials
-        run: |
-          mkdir -p ~/.aws
-          echo "[default]" > ~/.aws/credentials
-          echo "aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
-          echo "aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#       # Step 4: Configure AWS credentials
+#       - name: Configure AWS credentials
+#         run: |
+#           mkdir -p ~/.aws
+#           echo "[default]" > ~/.aws/credentials
+#           echo "aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
+#           echo "aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+#         env:
+#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-     # Step 5: Terraform Init
-      - name: Terraform Init
-        run: terraform init
+#      # Step 5: Terraform Init
+#       - name: Terraform Init
+#         run: terraform init
 
-      # Step 6: Terraform Plan
-      - name: Terraform Plan
-        run: terraform plan 
+#       # Step 6: Terraform Plan
+#       - name: Terraform Plan
+#         run: terraform plan 
 
-      # Step 7: Terraform Apply
-      - name: Terraform Apply
-        run: terraform apply -auto-approve 
+#       # Step 7: Terraform Apply
+#       - name: Terraform Apply
+#         run: terraform apply -auto-approve 

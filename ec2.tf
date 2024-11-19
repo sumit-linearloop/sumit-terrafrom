@@ -20,9 +20,6 @@ resource "aws_instance" "worker" {
   # Add security group
   security_groups = [aws_security_group.sumit-iac.name]
 
-  # Use cloud-init or a shell script for initial setup
-  user_data = file("${path.module}/sumit.sh")  # Ensure this script is in the correct location
-
   tags = {
     Name = "sumit-cloud"
   }
