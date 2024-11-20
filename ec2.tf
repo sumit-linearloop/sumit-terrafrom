@@ -60,9 +60,12 @@ resource "aws_instance" "worker" {
       "unzip awscliv2.zip",                       # Unzip the AWS CLI installer
       "sudo ./aws/install",                       # Install AWS CLI
       "aws --version",                            # Verify AWS CLI installation
-      "aws configure set aws_access_key_id var.AWS_ACCESS_KEY_ID",
-      "aws configure set aws_secret_access_key var.AWS_SECRET_ACCESS_KEY",
-      "aws configure set default.region ap-south-1"
+      "aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID",
+      "aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY",
+      "aws configure set default.region ap-south-1",
+      "aws s3 ls
+       aws s3 ls s3://sumit-aws-1/
+       aws s3 cp s3://sumit-aws-1/env /opt/.env
     ]
 
     connection {
