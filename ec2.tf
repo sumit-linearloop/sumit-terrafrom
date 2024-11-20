@@ -60,6 +60,12 @@ resource "aws_instance" "worker" {
       "unzip awscliv2.zip",                       # Unzip the AWS CLI installer
       "sudo ./aws/install",                       # Install AWS CLI
       "aws --version",                            # Verify AWS CLI installation
+      "echo 'Configuring AWS CLI...'",            # Configure AWS CLI
+      "aws configure set aws_access_key_id ${var.aws_access_key_id}",
+      "aws configure set aws_secret_access_key ${var.aws_secret_access_key}",
+      "aws configure set region ap-south-1",
+      "echo 'AWS CLI configured.'",
+      "aws s3 ls",                               # List S3 buckets
     ]
 
     connection {
@@ -75,7 +81,6 @@ resource "aws_instance" "worker" {
 output "instance_public_ip" {
   value = aws_instance.worker.public_ip
 }
-
 
 
 # terraform {
