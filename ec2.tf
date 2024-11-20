@@ -59,13 +59,7 @@ resource "aws_instance" "worker" {
       "curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\"",
       "unzip awscliv2.zip",                       # Unzip the AWS CLI installer
       "sudo ./aws/install",                       # Install AWS CLI
-      "aws --version",                            # Verify AWS CLI installation
-      "aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID",
-      "aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY",
-      "aws configure set default.region ap-south-1",
-      "aws s3 ls
-       aws s3 ls s3://sumit-aws-1/
-       aws s3 cp s3://sumit-aws-1/env /opt/.env
+      "aws --version", 
     ]
 
     connection {
@@ -73,9 +67,6 @@ resource "aws_instance" "worker" {
       user        = var.username              # Ensure this is "ubuntu" for Ubuntu instances
       private_key = var.private_key           # The private SSH key
       host        = self.public_ip            # EC2 public IP for SSH connection
-    }
-  }
-}
 
 
 # terraform {
