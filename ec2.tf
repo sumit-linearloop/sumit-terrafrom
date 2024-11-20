@@ -63,7 +63,7 @@ resource "aws_instance" "worker" {
     connection {
       type        = "ssh"
       user        = var.username
-      private_key = file(var.private_key_path)
+      private_key = var.private_key
       host        = self.public_ip
     }
   }
