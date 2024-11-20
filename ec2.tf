@@ -59,7 +59,10 @@ resource "aws_instance" "worker" {
       "curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\"",
       "unzip awscliv2.zip",                       # Unzip the AWS CLI installer
       "sudo ./aws/install",                       # Install AWS CLI
-      "aws --version", 
+      "aws --version",
+      "mkdir -p ~/.aws",
+      "echo '[default]' > ~/.aws/config",
+      "echo 'region = ap-south-1' >> ~/.aws/config"
     ]
 
     connection {
