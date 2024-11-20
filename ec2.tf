@@ -51,17 +51,17 @@ resource "aws_instance" "worker" {
   }
 
   # Remote Exec Provisioner
-provisioner "remote-exec" {
-  inline = [
-    "echo 'Updating system packages...'",
-    "sudo apt-get update -y",                    # Update system packages
-    "sudo apt-get install -y unzip curl",         # Install unzip and curl (needed for AWS CLI installation)
-    "curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\"",
-    "unzip awscliv2.zip || { echo 'Failed to unzip AWS CLI installer'; exit 1; }",  # Unzip and handle error
-    "sudo ./aws/install || { echo 'Failed to install AWS CLI'; exit 1; }",        # Install AWS CLI and handle error
-    "aws --version || { echo 'AWS CLI installation failed'; exit 1; }",          # Verify AWS CLI installation
-  ]
-}
+  provisioner "remote-exec" {
+    inline = [
+      "echo 'Updating system packages...'",
+      "sudo apt-get update -y",                   # Update system packages
+      "sudo apt-get install -y unzip curl",        # Install unzip and curl (needed for AWS CLI installation)
+      "curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\"",
+      "unzip awscliv2.zip",                       # Unzip the AWS CLI installer
+      "sudo ./aws/install",                       # Install AWS CLI
+      "aws --version", 
+    ]
+
     connection {
       type        = "ssh"
       user        = var.username              # Ensure this is "ubuntu" for Ubuntu instances
