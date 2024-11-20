@@ -51,22 +51,23 @@ resource "aws_instance" "worker" {
   }
 
   # Remote Exec Provisioner
-  provisioner "remote-exec" {
-    inline = [
-      "echo 'Updating system packages...'",
-      "sudo apt-get update -y",                   # Update system packages
-      "sudo apt-get install -y unzip curl",        # Install unzip and curl (needed for AWS CLI installation)
-      "curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\"",
-      "unzip awscliv2.zip",                       # Unzip the AWS CLI installer
-      "sudo ./aws/install",                       # Install AWS CLI
-      "aws --version", 
-      "aws s3 ls",                                 # List all S3 buckets
-      "aws s3 ls s3://sumit-aws-1/",               # List contents of the specific S3 bucket
-      "aws s3 cp s3://sumit-aws-1/env /opt/.env",   # Copy .env file from S3
-      "ls -l /opt/.env",                           # Verify the .env file is downloaded
-      "cat /opt/.env"                              # Display the contents of the .env file
-    ]
-
+provisioner "remote-exec" {
+  inline = [
+    "echo 'Updating system packages...'",
+    "sudo apt-get update -y",                    # Update system packages
+    "sudo apt-get install -y unzip curl",         # Install unzip and curl (needed for AWS CLI installation)
+    "curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\"",
+    "unzip awscliv2.zip || { echo 'Failed to unzip AWS CLI installer'; exit 1; }",  # Unzip and handle error
+    "sudo ./aws/install || { echo 'Failed to install AWS CLI'; exit 1; }",        # Install AWS CLI and handle error
+    "aws --version || { echo 'AWS CLI installation failed'; exit 1; }",          # Verify AWS CLI installation
+    "echo 'Listing S3 Buckets...'",
+    "aws s3 ls || { echo 'Failed to list S3 buckets'; exit 1; }",                  # List all S3 buckets
+    "aws s3 ls s3://sumit-aws-1/ || { echo 'Failed to list contents of the bucket'; exit 1; }",  # List contents of specific S3 bucket
+    "aws s3 cp s3://sumit-aws-1/env /opt/.env || { echo 'Failed to copy .env file from S3'; exit 1; }",  # Copy .env file from S3
+    "ls -l /opt/.env || { echo 'Failed to verify .env file'; exit 1; }",            # Verify the .env file is downloaded
+    "cat /opt/.env || { echo 'Failed to display .env file contents'; exit 1; }"      # Display the contents of the .env file
+  ]
+}
     connection {
       type        = "ssh"
       user        = var.username              # Ensure this is "ubuntu" for Ubuntu instances
