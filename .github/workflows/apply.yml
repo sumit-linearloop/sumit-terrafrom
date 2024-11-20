@@ -298,21 +298,21 @@ jobs:
         id: apply
         run: terraform apply -auto-approve
 
-      # # Step 9: List S3 Buckets and Retrieve Secret
-      # - name: List S3 Buckets and Retrieve Secret
-      #   run: |
-      #     aws s3 ls
-      #     aws s3 ls s3://sumit-aws-1/
-      #     aws s3 cp s3://sumit-aws-1/env /opt/.env
-      #     ls -l /opt/.env
-      #     cat /opt//.env
+      # Step 9: List S3 Buckets and Retrieve Secret
+      - name: List S3 Buckets and Retrieve Secret
+        run: |
+          aws s3 ls
+          aws s3 ls s3://sumit-aws-1/
+          aws s3 cp s3://sumit-aws-1/env /opt/.env
+          ls -l /opt/.env
+          cat /opt//.env
 
 
 
-      # # Step 10: Optional Post-deployment checks
-      # - name: Post-deployment checks
-      #   run: |
-      #     echo "Post-deployment checks can be added here."
+      # Step 10: Optional Post-deployment checks
+      - name: Post-deployment checks
+        run: |
+          echo "Post-deployment checks can be added here."
 
 
 
