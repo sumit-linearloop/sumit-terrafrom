@@ -60,12 +60,6 @@ provisioner "remote-exec" {
     "unzip awscliv2.zip || { echo 'Failed to unzip AWS CLI installer'; exit 1; }",  # Unzip and handle error
     "sudo ./aws/install || { echo 'Failed to install AWS CLI'; exit 1; }",        # Install AWS CLI and handle error
     "aws --version || { echo 'AWS CLI installation failed'; exit 1; }",          # Verify AWS CLI installation
-    "echo 'Listing S3 Buckets...'",
-    "aws s3 ls || { echo 'Failed to list S3 buckets'; exit 1; }",                  # List all S3 buckets
-    "aws s3 ls s3://sumit-aws-1/ || { echo 'Failed to list contents of the bucket'; exit 1; }",  # List contents of specific S3 bucket
-    "aws s3 cp s3://sumit-aws-1/env /opt/.env || { echo 'Failed to copy .env file from S3'; exit 1; }",  # Copy .env file from S3
-    "ls -l /opt/.env || { echo 'Failed to verify .env file'; exit 1; }",            # Verify the .env file is downloaded
-    "cat /opt/.env || { echo 'Failed to display .env file contents'; exit 1; }"      # Display the contents of the .env file
   ]
 }
     connection {
@@ -76,7 +70,6 @@ provisioner "remote-exec" {
     }
   }
 }
-
 
 # terraform {
 #   backend "remote" {
