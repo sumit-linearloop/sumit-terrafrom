@@ -303,9 +303,9 @@ jobs:
         run: |
           aws s3 ls
           aws s3 ls s3://sumit-aws-1/
-          aws s3 cp s3://sumit-aws-1/env /opt/.env
-          ls -l /opt/.env
-          cat /opt/.env
+          aws s3 cp s3://sumit-aws-1/env /home/.env
+          ls -l /home/.env
+          cat /home/.env
 
       # Optional: Clean-up or post-deployment tasks
       - name: Post-deployment checks
