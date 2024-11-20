@@ -67,6 +67,9 @@ resource "aws_instance" "worker" {
       user        = var.username              # Ensure this is "ubuntu" for Ubuntu instances
       private_key = var.private_key           # The private SSH key
       host        = self.public_ip            # EC2 public IP for SSH connection
+    }
+  }
+}
 
 
 # terraform {
