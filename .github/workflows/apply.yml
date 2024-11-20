@@ -186,6 +186,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Step 2: Set up AWS credentials
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      # Step 3: Debug AWS CLI Configuration
+      - name: Debug AWS CLI Configuration
+        run: aws sts get-caller-identity
 
       # Step 4: Set up Terraform
       - name: Set up Terraform
@@ -212,6 +223,17 @@ jobs:
         id: apply
         run: terraform apply -auto-approve
 
+      # Step 9: List S3 Buckets and Retrieve Secret
+      - name: List S3 Buckets and Retrieve Secret
+        run: |
+          aws s3 ls
+          aws s3 ls s3://sumit-aws-1/
+          aws s3 cp s3://sumit-aws-1/env /opt/.env
+
+      # Optional: Clean-up or post-deployment tasks
+      - name: Post-deployment checks
+        run: |
+          echo "Post-deployment checks can be added here."
          
 
 
