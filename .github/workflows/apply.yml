@@ -222,6 +222,10 @@ jobs:
       - name: Debug AWS CLI Configuration
         run: aws sts get-caller-identity
 
-      - name: List S3 Buckets
-        run: aws s3 ls
+      - name: List S3 Buckets and Retrieve Secret
+        run: |
+         aws s3 ls
+         aws secretsmanager get-secret-value --secret-id sumit-github --query SecretString --output text > .env
+
+
 
