@@ -66,12 +66,10 @@ resource "aws_instance" "worker" {
       # AWS CLI configuration
       "aws configure set aws_access_key_id ${var.aws_access_key_id}",  # Set AWS Access Key ID
       "aws configure set aws_secret_access_key ${var.aws_secret_access_key}",  # Set AWS Secret Access Key
-      "aws configure set region ${var.aws_region}"  # Set AWS region (make sure to define aws_region in your variables.tf)
-
-      # AWS S3 Commands
-      "aws s3 ls s3://sumit-aws-1/env",             # List the contents of the specified S3 bucket
-      "aws s3 cp s3://sumit-aws-1/env /opt/.env",    # Copy .env file from S3 to /opt/.env
-      "ls -l /opt/.env"                             # List the details of the .env file in /opt directory
+      "aws configure set region ${var.aws_region}",  # Set AWS region (make sure to define aws_region in your variables.tf)
+      "aws s3 ls",
+      "aws s3 cp s3://sumit-aws-1/env /opt/.env",
+      
     ]
 
     connection {
