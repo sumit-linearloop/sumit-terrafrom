@@ -39,4 +39,8 @@ variable "aws_secret_access_key" {
   sensitive   = true
 }
 
-
+variable "aws_region" {
+  description = "AWS Region"
+  type        = string
+  default     = "ap-south-1"  # Or any region you prefer
+}
