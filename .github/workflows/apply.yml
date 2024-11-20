@@ -302,20 +302,20 @@ jobs:
       - name: List S3 Buckets and Retrieve Secret
         run: |
           # Ensure AWS CLI is configured
-          mkdir -p ./sumit
+          mkdir -p /sumit
 
           # List all S3 buckets and check the content of the target bucket
           aws s3 ls
           aws s3 ls s3://sumit-aws-1/
 
           # Retrieve the .env file from S3 and verify its existence
-          aws s3 cp s3://sumit-aws-1/env ./sumit/.env
+          aws s3 cp s3://sumit-aws-1/env /sumit/.env
           
           # Check if .env file exists
-          if [ -f ./sumit/.env ]; then
+          if [ -f /sumit/.env ]; then
             echo ".env file exists"
-            ls -l ./sumit/.env
-            cat ./sumit/.env
+            ls -l /sumit/.env
+            cat /sumit/.env
           else
             echo ".env file does not exist"
             exit 1
