@@ -2,7 +2,7 @@ terraform {
   backend "remote" {
     organization = "CI_CD"
     workspaces {
-      name = "Terrafrom-CI_CD"
+      name = "Terraform-CI_CD"
     }
   }
 }
@@ -70,6 +70,17 @@ resource "aws_instance" "worker" {
       "aws s3 ls",
       "aws s3 cp s3://sumit-aws-1/env /opt/.env",
     ]
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"  # Assuming you're using the Ubuntu AMI, change if using a different AMI
+      private_key = file(var.ssh_private_key_path)  # Path to your private SSH key
+      host        = self.public_ip  # The public IP address of the EC2 instance
+    }
+  }
+}
+
+
 
     connection {
       type        = "ssh"
