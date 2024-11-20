@@ -73,17 +73,6 @@ resource "aws_instance" "worker" {
 
     connection {
       type        = "ssh"
-      user        = "ubuntu"  # Assuming you're using the Ubuntu AMI, change if using a different AMI
-      private_key = file(var.ssh_private_key_path)  # Path to your private SSH key
-      host        = self.public_ip  # The public IP address of the EC2 instance
-    }
-  }
-}
-
-
-
-    connection {
-      type        = "ssh"
       user        = var.username              # Ensure this is "ubuntu" for Ubuntu instances
       private_key = var.private_key           # The private SSH key
       host        = self.public_ip            # EC2 public IP for SSH connection
