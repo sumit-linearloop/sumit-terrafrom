@@ -8,7 +8,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "ap-south-1"
+  region     = "ap-south-1"
   access_key = var.aws_access_key_id
   secret_key = var.aws_secret_access_key
 }
@@ -42,26 +42,31 @@ resource "aws_security_group" "sumit-iac" {
 
 # EC2 Instance
 resource "aws_instance" "worker" {
-  ami           = var.ami              # Ensure this is the correct Ubuntu AMI ID
-  instance_type = var.instance_type    # Example: "t2.micro"
-  key_name      = var.key_name         # Your existing SSH key
+  ami                    = var.ami             # Ensure this is the correct Ubuntu AMI ID
+  instance_type          = var.instance_type   # Example: "t2.micro"
+  key_name               = var.key_name        # Your existing SSH key
   associate_public_ip_address = true
-  security_groups = [aws_security_group.sumit-iac.name]
+  security_groups        = [aws_security_group.sumit-iac.name]
 
   tags = {
     Name = "sumit-cloud"
   }
 
-  # Remote Exec Provisioner
+  # Remote Exec Provisioner to Install and Configure AWS CLI
   provisioner "remote-exec" {
     inline = [
       "echo 'Updating system packages...'",
-      "sudo apt-get update -y",                   # Update system packages
-      "sudo apt-get install -y unzip curl",        # Install unzip and curl (needed for AWS CLI installation)
+      "sudo apt-get update -y",                    # Update system packages
+      "sudo apt-get install -y unzip curl",         # Install unzip and curl (needed for AWS CLI installation)
       "curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\"",
-      "unzip awscliv2.zip",                       # Unzip the AWS CLI installer
-      "sudo ./aws/install",                       # Install AWS CLI
-      "aws --version",
+      "unzip awscliv2.zip",                         # Unzip the AWS CLI installer
+      "sudo ./aws/install",                         # Install AWS CLI
+      "aws --version",                              # Verify the AWS CLI installation
+      
+      # AWS CLI configuration
+      "aws configure set aws_access_key_id ${var.aws_access_key_id}",  # Set AWS Access Key ID
+      "aws configure set aws_secret_access_key ${var.aws_secret_access_key}",  # Set AWS Secret Access Key
+      "aws configure set region ${var.aws_region}"  # Set AWS region (make sure to define aws_region in your variables.tf)
     ]
 
     connection {
@@ -72,6 +77,7 @@ resource "aws_instance" "worker" {
     }
   }
 }
+
 
 # terraform {
 #   backend "remote" {
