@@ -2,7 +2,7 @@ terraform {
   backend "remote" {
     organization = "CI_CD"
     workspaces {
-      name = "Terraform-CI_CD"
+      name = "Terrafrom-CI_CD"
     }
   }
 }
