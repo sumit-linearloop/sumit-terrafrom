@@ -60,7 +60,6 @@ resource "aws_instance" "worker" {
       "unzip awscliv2.zip",                       # Unzip the AWS CLI installer
       "sudo ./aws/install",                       # Install AWS CLI
       "aws --version",
-      "aws s3 ls",
     ]
 
     connection {
