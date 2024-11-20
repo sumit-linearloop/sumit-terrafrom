@@ -67,17 +67,6 @@ resource "aws_instance" "worker" {
       "aws configure set aws_access_key_id ${var.aws_access_key_id}",  # Set AWS Access Key ID
       "aws configure set aws_secret_access_key ${var.aws_secret_access_key}",  # Set AWS Secret Access Key
       "aws configure set region ${var.aws_region}",  # Set AWS region (make sure to define aws_region in your variables.tf)
-
-     # Check S3 bucket contents
-     "aws s3 ls s3://sumit-aws-1/env",             
-     "if [ $? -eq 0 ]; then echo 'S3 bucket found'; else echo 'Error: S3 bucket not found'; exit 1; fi",
-
-     "aws s3 ls s3://sumit-aws-1/env",             
-     "if [ $? -eq 0 ]; then echo 'S3 bucket found'; else echo 'Error: S3 bucket not found'; exit 1; fi",
-
-    # Copy the .env file from S3 to EC2
-    "aws s3 cp s3://sumit-aws-1/env /opt/.env",    
-    "if [ $? -eq 0 ]; then echo '.env file copied successfully'; else echo 'Error: .env file not copied'; exit 1; fi",
     ]
 
     connection {
