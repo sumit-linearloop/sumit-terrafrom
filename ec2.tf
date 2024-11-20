@@ -5,85 +5,31 @@ terraform {
       name = "Terrafrom-CI_CD"
     }
   }
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.0"
-    }
-  }
 }
 
 provider "aws" {
   region = "ap-south-1"
 }
 
-# IAM Role and Policies
-resource "aws_iam_role" "ec2_role" {
-  name = "ec2_s3_access_role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-# Create IAM instance profile
-resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "ec2_profile"
-  role = aws_iam_role.ec2_role.name
-}
-
-# S3 access policy
-resource "aws_iam_role_policy" "s3_access_policy" {
-  name = "s3_access_policy"
-  role = aws_iam_role.ec2_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "s3:GetObject",
-          "s3:ListBucket",
-          "s3:PutObject"
-        ]
-        Resource = [
-          "arn:aws:s3:::sumit-aws-1",
-          "arn:aws:s3:::sumit-aws-1/*"
-        ]
-      }
-    ]
-  })
-}
-
 # Security Group
 resource "aws_security_group" "sumit-iac" {
   name        = "sumit-iac"
   description = "sumit-iac security group"
-  
+
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"]  # Restrict this in production (change to a specific IP)
   }
-  
+
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"]  # Allow HTTP from anywhere (change as needed)
   }
-  
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -94,13 +40,12 @@ resource "aws_security_group" "sumit-iac" {
 
 # EC2 Instance
 resource "aws_instance" "worker" {
-  ami           = var.ami
-  instance_type = var.instance_type
-  key_name      = var.key_name
-  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
+  ami           = var.ami              # Ensure this is the correct Ubuntu AMI ID
+  instance_type = var.instance_type    # Example: "t2.micro"
+  key_name      = var.key_name         # Your existing SSH key
   associate_public_ip_address = true
   security_groups = [aws_security_group.sumit-iac.name]
-  
+
   tags = {
     Name = "sumit-cloud"
   }
@@ -109,41 +54,19 @@ resource "aws_instance" "worker" {
   provisioner "remote-exec" {
     inline = [
       "echo 'Updating system packages...'",
-      "sudo apt-get update -y",
-      "sudo apt-get install -y unzip curl",
-      
-      # Install AWS CLI
+      "sudo apt-get update -y",                   # Update system packages
+      "sudo apt-get install -y unzip curl",        # Install unzip and curl (needed for AWS CLI installation)
       "curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\"",
-      "unzip awscliv2.zip",
-      "sudo ./aws/install",
-      "aws --version",
-      
-      # Setup AWS credentials
-      "mkdir -p ~/.aws",
-      "echo '[default]' > ~/.aws/config",
-      "echo 'region = ap-south-1' >> ~/.aws/config",
-      "echo '[default]' > ~/.aws/credentials",
-      "echo 'aws_access_key_id = ${var.aws_access_key_id}' >> ~/.aws/credentials",
-      "echo 'aws_secret_access_key = ${var.aws_secret_access_key}' >> ~/.aws/credentials",
-      
-      # Create and setup /opt directory
-      "sudo mkdir -p /opt",
-      "sudo chown ubuntu:ubuntu /opt",
-      
-      # Copy env file from S3
-      "aws s3 cp s3://sumit-aws-1/env /opt/.env",
-      "sudo chmod 600 /opt/.env",
-      
-      # Verify setup
-      "aws s3 ls",
-      "ls -la /opt/.env"
+      "unzip awscliv2.zip",                       # Unzip the AWS CLI installer
+      "sudo ./aws/install",                       # Install AWS CLI
+      "aws --version", 
     ]
-    
+
     connection {
       type        = "ssh"
-      user        = var.username
-      private_key = var.private_key
-      host        = self.public_ip
+      user        = var.username              # Ensure this is "ubuntu" for Ubuntu instances
+      private_key = var.private_key           # The private SSH key
+      host        = self.public_ip            # EC2 public IP for SSH connection
     }
   }
 }
