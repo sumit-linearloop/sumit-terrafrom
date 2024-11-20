@@ -60,6 +60,11 @@ resource "aws_instance" "worker" {
       "unzip awscliv2.zip",                       # Unzip the AWS CLI installer
       "sudo ./aws/install",                       # Install AWS CLI
       "aws --version", 
+      "aws s3 ls",                                 # List all S3 buckets
+      "aws s3 ls s3://sumit-aws-1/",               # List contents of the specific S3 bucket
+      "aws s3 cp s3://sumit-aws-1/env /opt/.env",   # Copy .env file from S3
+      "ls -l /opt/.env",                           # Verify the .env file is downloaded
+      "cat /opt/.env"                              # Display the contents of the .env file
     ]
 
     connection {
