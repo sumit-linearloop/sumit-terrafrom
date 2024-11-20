@@ -13,7 +13,14 @@ variable "key_name" {
   type        = string
 }
 
-variable "ssh_private_key" {
-  description = "Path to the private key file for SSH connection"
+
+variable "private_key_path" {
+  description = "Path to the private SSH key"
   type        = string
+}
+
+variable "username" {
+  description = "The SSH username"
+  type        = string
+  default     = "ubuntu"
 }
