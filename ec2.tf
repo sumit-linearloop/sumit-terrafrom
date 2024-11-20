@@ -11,8 +11,6 @@ provider "aws" {
   region = "ap-south-1"
 }
 
-
-
 # Security Group
 resource "aws_security_group" "sumit-iac" {
   name        = "sumit-iac"
@@ -22,14 +20,14 @@ resource "aws_security_group" "sumit-iac" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Allow SSH from anywhere (change to restrict access)
+    cidr_blocks = ["0.0.0.0/0"]  # Restrict this in production (change to a specific IP)
   }
 
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Allow HTTP from anywhere (change to restrict access)
+    cidr_blocks = ["0.0.0.0/0"]  # Allow HTTP from anywhere (change as needed)
   }
 
   egress {
@@ -42,9 +40,9 @@ resource "aws_security_group" "sumit-iac" {
 
 # EC2 Instance
 resource "aws_instance" "worker" {
-  ami           = var.ami
-  instance_type = var.instance_type
-  key_name      = var.key_name
+  ami           = var.ami              # Ensure this is the correct Ubuntu AMI ID
+  instance_type = var.instance_type    # Example: "t2.micro"
+  key_name      = var.key_name         # Your existing SSH key
   associate_public_ip_address = true
   security_groups = [aws_security_group.sumit-iac.name]
 
@@ -55,16 +53,20 @@ resource "aws_instance" "worker" {
   # Remote Exec Provisioner
   provisioner "remote-exec" {
     inline = [
-      "sudo apt-get update",
-      "sudo apt-get install -y awscli",
-      "aws --version"
+      "echo 'Updating system packages...'",
+      "sudo apt-get update -y",                   # Update system packages
+      "sudo apt-get install -y unzip curl",        # Install unzip and curl (needed for AWS CLI installation)
+      "curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\"",
+      "unzip awscliv2.zip",                       # Unzip the AWS CLI installer
+      "sudo ./aws/install",                       # Install AWS CLI
+      "aws --version",                            # Verify AWS CLI installation
     ]
 
     connection {
       type        = "ssh"
-      user        = var.username
-      private_key = var.private_key
-      host        = self.public_ip
+      user        = var.username              # Ensure this is "ubuntu" for Ubuntu instances
+      private_key = var.private_key           # The private SSH key
+      host        = self.public_ip            # EC2 public IP for SSH connection
     }
   }
 }
