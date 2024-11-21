@@ -64,9 +64,9 @@ resource "aws_instance" "worker" {
       "aws --version",                              # Verify the AWS CLI installation
       
       # AWS CLI configuration
-      "aws configure set aws_access_key_id ${var.aws_access_key_id}",  # Set AWS Access Key ID
-      "aws configure set aws_secret_access_key ${var.aws_secret_access_key}",  # Set AWS Secret Access Key
-      "aws configure set region ${var.aws_region}",  # Set AWS region (make sure to define aws_region in your variables.tf)
+      "sudo -i aws configure set aws_access_key_id ${var.aws_access_key_id}",  # Set AWS Access Key ID
+      "sudo -i aws configure set aws_secret_access_key ${var.aws_secret_access_key}",  # Set AWS Secret Access Key
+      "sudo -i aws configure set region ${var.aws_region}",  # Set AWS region (make sure to define aws_region in your variables.tf)
    ]
 
     connection {
